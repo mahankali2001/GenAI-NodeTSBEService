@@ -3,14 +3,21 @@ import axios from 'axios';
 export class Bot {
     private apiKey: string;
 
-    constructor(apiKey: string) {
-        this.apiKey = apiKey;
+    constructor() {
+        this.apiKey = "";
     }
 
     public async sendMessage(userInput: string): Promise<string> {
         try {
-            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-                model: 'gpt-3.5-turbo',
+            const apiUrl = process.env.OPENAI_URL || 'https://api.openai.com/v1/chat/completions';
+            this.apiKey = process.env.OPENAI_API_KEY || "Missing in environment file!";
+
+            if (!this.apiKey) {
+                throw new Error('OPENAI_API_KEY is not defined in the environment variables');
+            }
+            
+            const response = await axios.post(apiUrl, {
+                model: process.env.OPENAI_MODEL,
                 messages: [{ role: 'user', content: userInput }],
             }, {
                 headers: {
